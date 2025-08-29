@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .journey-list {
+            margin-top: 20px;
+        }
+
+        .journey-entry {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .journey-entry:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .entry-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .entry-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .entry-date {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .entry-actions a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+
+        .entry-actions a:hover {
+            color: #0056b3;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        .floating-btn:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Journeys</h1>
+
+        <div class="journey-list">
+            <!-- Loop through journeys -->
+            {% for journey in journeys %}
+            <div class="journey-entry">
+                <div class="entry-details">
+                    <div class="entry-title">{{ journey.title }}</div>
+                    <div class="entry-date">{{ journey.date|date:"F j, Y" }}</div>
+                </div>
+                <div class="entry-actions">
+                    <a href="/openmap/">View Map</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No journeys found. Start a new one!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Floating Plus Button -->
+    <a href="/map/" class="floating-btn">+</a>
+</body>
+</html>
+

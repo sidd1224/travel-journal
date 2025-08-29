@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <style>
+        /* Style for the map container */
+        #map {
+            height: 80vh; /* Adjust map height to 80% of the viewport height */
+            width: 100%;
+        }
+
+        /* Style for the View Journal button */
+        .view-journal-btn {
+            position: fixed;
+            bottom: 20px; /* Position the button 20px from the bottom */
+            left: 50%;
+            transform: translateX(-50%); /* Center the button horizontally */
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50; /* Green background for the button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .view-journal-btn:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Style for the heading */
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Style for the back button */
+        .back-btn {
+            position: fixed;
+            top: 20px; /* Position the button 20px from the top */
+            right: 20px; /* Position the button 20px from the right */
+            background-color: red;
+            color: white;
+            font-size: 30px;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .back-btn:hover {
+            background-color: darkred; /* Darker red on hover */
+        }
+    </style>
+    <script>
+        let map;
+        let markers = [];
+        let directionsService;
+        let directionsRenderer;
+
+        // Function to create a marker with a specific color
+        function createMarker(position, title, color) {
+            return new google.maps.Marker({
+                position: position,
+                map: map,
+                title: title,
+                icon: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`,
+            });
+        }
+
+        // Define initMap as a global function
+        window.initMap = function () {
+            const defaultLocation = { lat: 20.5937, lng: 78.9629 }; // Default location (India)
+
+            // Initialize the map
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 5,
+                center: defaultLocation,
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true, // Prevent directionsRenderer from overwriting custom markers
+            });
+
+            // Debugging: Check if pinned_locations is populated
+            console.log("Pinned locations from Django context:");
+            {% for location in pinned_locations %}
+                console.log("Location {{ forloop.counter0 }}:", {{ location.0 }}, {{ location.1 }}, "{{ location.2 }}");
+            {% endfor %}
+
+            // Place markers from Django context
+            let bounds = new google.maps.LatLngBounds();
+            {% for location in pinned_locations %}
+            {
+                const position = { lat: {{ location.0 }}, lng: {{ location.1 }} };
+                let markerColor;
+
+                switch ("{{ location.2 }}") {
+                    case "start":
+                        markerColor = 'red';
+                        break;
+                    case "end":
+                        markerColor = 'red';
+                        break;
+                    default:
+                        markerColor = 'blue';
+                }
+
+                const marker = createMarker(position, "{{ location.2 }}", markerColor);
+                bounds.extend(marker.getPosition());
+                markers.push(marker);
+            }
+            {% endfor %}
+
+            map.fitBounds(bounds);
+
+            // Automatically calculate and display the route if both start and end markers are placed
+            if (markers.some(m => m.getTitle() === "start") && markers.some(m => m.getTitle() === "end")) {
+                calculateAndDisplayRoute();
+            }
+        };
+
+        // Function to calculate and display the route including waypoints
+        function calculateAndDisplayRoute() {
+            const startMarker = markers.find(marker => marker.getTitle() === "start");
+            const endMarker = markers.find(marker => marker.getTitle() === "end");
+
+            if (!startMarker || !endMarker) {
+                alert("Start or end marker is missing.");
+                return;
+            }
+
+            // Collect waypoints (all markers except start and end)
+            const waypoints = markers
+                .filter(marker => marker.getTitle() !== "start" && marker.getTitle() !== "end")
+                .map(marker => ({
+                    location: marker.getPosition(),
+                    stopover: true,  // Ensures that these waypoints are part of the route
+                }));
+
+            const request = {
+                origin: startMarker.getPosition(),
+                destination: endMarker.getPosition(),
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING,
+                optimizeWaypoints: true, // Optimize the waypoints
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    directionsRenderer.setDirections(response);
+
+                    // Re-add custom markers for start and end points
+                    createMarker(startMarker.getPosition(), "start", "red");
+                    createMarker(endMarker.getPosition(), "end", "red");
+                } else {
+                    alert("Directions request failed due to " + status);
+                }
+            });
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA1Q-sf7qdd-Gp1V_yVU80GA8Yzx6CUGHc&libraries=places&callback=initMap" async defer></script>
+</head>
+<body>
+    <h1>Map</h1>
+    <div id="map"></div>
+
+    <!-- View Journal Button -->
+    <a href="/get-journal-data/" class="view-journal-btn">View Journal</a>
+
+    <!-- Back Button -->
+    <button class="back-btn" onclick="window.history.back();">&times;</button>
+</body>
+</html>

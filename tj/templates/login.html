@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'register.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Login to Your Account</h2>
+
+        <!-- Display messages if any -->
+       
+
+        <!-- Login Form -->
+        <form method="post" class="login-form">
+            {% csrf_token %} <!-- CSRF token for Django security -->
+
+            <!-- Render form fields dynamically in Django -->
+            {{ form.as_p }}
+
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>

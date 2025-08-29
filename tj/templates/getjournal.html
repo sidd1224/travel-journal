@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Journal Entry</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f0ea;
+            margin: 0;
+            padding: 0;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: red;
+            font-weight: bold;
+        }
+
+        .close-btn::before {
+            content: "X";
+            font-size: 30px;
+            color: red;
+        }
+
+        .journal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #e3d7c6, #f8f5f0);
+        }
+
+        .journal-book {
+            width: 80%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .title-section {
+            padding: 20px;
+            background-color: #fdf6e3;
+            border-bottom: 2px solid #d1c2a5;
+        }
+
+        .title-section h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #3d3d3d;
+        }
+
+        .left-page, .right-page {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .left-page {
+            background: #fdf6e3;
+            border-right: 2px dashed #d1c2a5;
+            overflow-y: auto;
+        }
+
+        .right-page {
+            background: #fffaf3;
+        }
+
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .image-gallery img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid #d1c2a5;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #3d3d3d;
+        }
+
+        .journal-entry-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #3d3d3d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goBack()" class="close-btn"></button>
+
+    <div class="journal-container">
+        <div class="journal-book">
+            <!-- Title Section -->
+            <div class="title-section">
+                <h2>Journal Entry</h2>
+            </div>
+
+            <div style="flex: 1; display: flex;">
+                <!-- Left Page: Display Images -->
+                <div class="left-page">
+                    <h3>Uploaded Images</h3>
+                    <div class="image-gallery">
+                        {% if data.images %}
+                            {% for image in data.images %}
+                            <img src="{{ MEDIA_URL }}{{ image.url }}" alt="Uploaded at {{ image.uploaded_at|date:'M d, Y H:i' }}">
+                            {% endfor %}
+                        {% else %}
+                            <p>No images uploaded.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right Page: Journal Text -->
+                <div class="right-page">
+                    <h3>Journal Text</h3>
+                    {% if data.journalEntries %}
+                        {% for entry in data.journalEntries %}
+                            <p class="journal-entry-text">{{ entry.text }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No journal entries found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Go back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

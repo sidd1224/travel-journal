@@ -1,0 +1,5 @@
+curl -X POST \
+https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAK9klraI-_-Tqj8JNx1hZ2xrKTLZiUYDI "Content-Type: application/json" \
+-d '{
+    "considerIp": "true"
+}'

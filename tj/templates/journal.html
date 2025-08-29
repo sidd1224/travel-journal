@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Journal</title>
+    <style>
+        .close-btn {
+            position: fixed;  /* Use fixed so it stays in place even when scrolling */
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 9999;  /* Ensure the button is on top of other elements */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: red;
+            font-weight: bold;
+        }
+
+        .close-btn::before {
+            content: "X";  /* Create a cross symbol */
+            font-size: 30px;
+            color: red;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f0ea;
+            margin: 0;
+            padding: 0;
+        }
+        .journal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #e3d7c6, #f8f5f0);
+        }
+        .journal-book {
+            width: 80%;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .title-section {
+            padding: 20px;
+            background-color: #fdf6e3;
+            border-bottom: 2px solid #d1c2a5;
+        }
+        .title-section label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .title-section input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #d1c2a5;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .left-page, .right-page {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .left-page {
+            background: #fdf6e3;
+            border-right: 2px dashed #d1c2a5;
+            overflow-y: auto;
+        }
+        .right-page {
+            background: #fffaf3;
+        }
+        h3 {
+            margin-top: 0;
+            color: #3d3d3d;
+        }
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .image-gallery img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid #d1c2a5;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .upload-section label {
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            height: calc(100% - 60px);
+            resize: none;
+            border: 2px solid #d1c2a5;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+        }
+        button {
+            margin-top: 20px;
+            background: #8b5e34;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #714723;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="goBack()" class="close-btn"></button>
+
+    <div class="journal-container">
+        <div class="journal-book">
+            <!-- Title Section -->
+            <div class="title-section">
+                <label for="journal-title">Title:</label>
+                <input type="text" id="journal-title" placeholder="Enter journal title">
+            </div>
+
+            <div style="flex: 1; display: flex;">
+                <!-- Left Page: Image Upload -->
+                <div class="left-page">
+                    <h3>Upload Images</h3>
+                    <div class="upload-section">
+                        <label for="image-upload">Choose Images:</label>
+                        <input type="file" id="image-upload" accept="image/*" multiple>
+                    </div>
+                </div>
+
+                <!-- Right Page: Journal Entry -->
+                <div class="right-page">
+                    <h3>Write Journal Entry</h3>
+                    <textarea id="journal-entry" placeholder="Write your thoughts here..."></textarea>
+                    <button onclick="saveJournal()">Save Journal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function saveJournal() {
+            const journalTitle = document.getElementById('journal-title').value.trim();
+            const journalText = document.getElementById('journal-entry').value.trim();
+            const images = document.getElementById('image-upload').files;
+            const journeyUuid = "{{ journey_uuid }}";
+
+            if (!journalTitle) {
+                alert("Please provide a title for your journal.");
+                return;
+            }
+
+            if (!journalText && images.length === 0) {
+                alert("Please write something or upload images!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('journalTitle', journalTitle);
+            formData.append('journalText', journalText);
+            formData.append('journey_uuid', journeyUuid);
+            Array.from(images).forEach((image, index) => {
+                formData.append('images', image);
+            });
+
+            fetch("/save-journal/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Journal saved successfully!");
+                    location.reload();
+                } else {
+                    alert("Failed to save journal.");
+                    console.error(data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while saving the journal.");
+            });
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
