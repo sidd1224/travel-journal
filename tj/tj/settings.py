@@ -13,19 +13,30 @@ from django.conf import settings
 from pathlib import Path
 import os
 from django.conf.urls.static import static
+import environ
+
+env=environ.Env(DEBUG =(bool,False))
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(os.path.join(BASE_DIR,'.env'))
 
+GOOGLE_MAPS_API_KEY_1 =  env("GOOGLE_MAPS_API_KEY_1") 
+GOOGLE_MAPS_API_KEY_2= env("GOOGLE_MAPS_API_KEY_2") 
+SECRET_KEY =  env("SECRET_KEY") 
+DEBUG =  env("DEBUG") 
+DATABASE_URL= env("DATABASE_URL") 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hd)hvpfa7a8r0yak5@v5wo@z6bhg5eay7n3(3ju2yue76h%p5s'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -77,15 +88,9 @@ WSGI_APPLICATION = 'tj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'travel_journal_db',    # The name of your database
-        'USER': 'siddh279',        # Your MySQL username
-        'PASSWORD': '@siddh$2007*&',    # Your MySQL password
-        'HOST': 'localhost',            # Usually 'localhost'
-        'PORT': '3306',                 # MySQL default port
-    }
+    'default': env.db('DATABASE_URL')
 }
 
 

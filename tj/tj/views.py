@@ -80,7 +80,7 @@ def map_view(request):
 
 
 def get_location_from_coords(latitude, longitude):
-    import requests
+   
     api_key = "AIzaSyA-btImNVHnpfrG6ZpFT1-YxU4ekWcERNUY"  # Replace with your Google Maps API key
     url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key={api_key}"
     response = requests.get(url)
@@ -384,6 +384,7 @@ def view_map(request, uuid=None):
     context = {
         'uuid': uuid,
         'pinned_locations': pinned_locations,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY_2
     }
     return render(request, 'openmap.html', context)
 
